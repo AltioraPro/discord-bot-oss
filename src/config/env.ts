@@ -46,13 +46,22 @@ const backendEnv = z.object({
   OAUTH_REDIRECT_URL: z.url("must be a valid URL").optional(),
 });
 
+/** Process behaviour. Both have defaults, so neither is required. */
+const runtimeEnv = z.object({
+  LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
+  NODE_ENV: z
+    .enum(["development", "production", "test"])
+    .default("development"),
+});
+
 /**
  * The raw object schema. Exported separately from `envSchema` because
  * `.superRefine()` hides `.shape`, and `ENV_KEYS` needs it.
  */
 export const envObject = discordEnv
   .extend(serverEnv.shape)
-  .extend(backendEnv.shape);
+  .extend(backendEnv.shape)
+  .extend(runtimeEnv.shape);
 
 export const envSchema = envObject.superRefine((value, ctx) => {
   if (value.APP_URL && !value.API_SECRET) {
