@@ -1,0 +1,30 @@
+{
+  "name": "discord-bot-oss",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The open source Discord bot for Altiora - community edition with deepwork sessions and role sync.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "bun": ">=1.3.0"
+  },
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "start": "bun src/index.ts",
+    "build": "bun build src/index.ts --outdir dist --target bun",
+    "typecheck": "tsc --noEmit",
+    "lint": "ultracite check",
+    "format": "ultracite fix",
+    "test": "bun test",
+    "check": "bun run lint && bun run typecheck && bun run test"
+  },
+  "dependencies": {
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.3",
+    "@types/bun": "latest",
+    "typescript": "7.0.2",
+    "ultracite": "7.9.4"
+  }
+}
