@@ -66,6 +66,23 @@ const backendEnv = z.object({
   OAUTH_REDIRECT_URL: blankAsAbsent(z.url("must be a valid URL").optional()),
 });
 
+/**
+ * Deepwork session timing. All optional, with the cadence Altiora runs as the
+ * default. Lower values are also what makes the check-in cycle verifiable in
+ * seconds rather than in half hours.
+ */
+const deepworkEnv = z.object({
+  DEEPWORK_CHECKIN_INTERVAL_MINUTES: blankAsAbsent(
+    z.coerce.number().positive().max(1440).default(30)
+  ),
+  DEEPWORK_CHECKIN_TIMEOUT_MINUTES: blankAsAbsent(
+    z.coerce.number().positive().max(1440).default(5)
+  ),
+  DEEPWORK_DEFAULT_DURATION_MINUTES: blankAsAbsent(
+    z.coerce.number().positive().max(1440).default(120)
+  ),
+});
+
 /** Process behaviour. Both have defaults, so neither is required. */
 const runtimeEnv = z.object({
   LOG_LEVEL: blankAsAbsent(
@@ -83,6 +100,7 @@ const runtimeEnv = z.object({
 export const envObject = discordEnv
   .extend(serverEnv.shape)
   .extend(backendEnv.shape)
+  .extend(deepworkEnv.shape)
   .extend(runtimeEnv.shape);
 
 export const envSchema = envObject.superRefine((value, ctx) => {
