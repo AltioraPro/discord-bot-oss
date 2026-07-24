@@ -1,0 +1,63 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+out/
+*.tsbuildinfo
+
+# Bun and tool caches
+.bun/
+.cache/
+.turbo/
+tmp/
+temp/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+.npmrc
+.netrc
+credentials.json
+secrets*.json
+*.local
+
+# Logs
+*.log
+logs/
+bun-debug.log*
+npm-debug.log*
+yarn-error.log*
+
+# Test output
+coverage/
+.nyc_output/
+
+# Editors
+.idea/
+*.swp
+*.swo
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# OS artefacts
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# Assistant and internal planning artefacts.
+# These are working documents, not part of the published project.
+.claude/
+CLAUDE.md
+AGENTS.md
+docs/superpowers/
