@@ -6,6 +6,16 @@ const TOKEN_PROBLEM =
 const INTENT_PROBLEM =
   "Discord refused a privileged intent. Open the Discord Developer Portal, select your application, open the Bot tab, and enable 'Server Members Intent' under Privileged Gateway Intents. It is the only privileged intent this bot needs.";
 
+/**
+ * A rejected intent does not arrive as a DiscordjsError.
+ *
+ * It surfaces as a plain `Error` with no `code`, carrying the gateway's raw
+ * close reason as its message — verified against discord.js 14.27.0 by running
+ * a real bot with Server Members Intent disabled. Matching on text is weaker
+ * than matching on a code, but there is no code to match on.
+ */
+const DISALLOWED_INTENTS_TEXT = /disallowed intents/i;
+
 function errorCode(error: unknown): string | undefined {
   if (typeof error !== "object" || error === null || !("code" in error)) {
     return;
@@ -25,6 +35,7 @@ function errorCode(error: unknown): string | undefined {
  */
 export function describeStartupError(error: unknown): string {
   const code = errorCode(error);
+  const message = error instanceof Error ? error.message : String(error);
 
   if (
     code === DiscordjsErrorCodes.TokenInvalid ||
@@ -35,10 +46,11 @@ export function describeStartupError(error: unknown): string {
 
   if (
     code === DiscordjsErrorCodes.DisallowedIntents ||
-    code === DiscordjsErrorCodes.InvalidIntents
+    code === DiscordjsErrorCodes.InvalidIntents ||
+    DISALLOWED_INTENTS_TEXT.test(message)
   ) {
     return INTENT_PROBLEM;
   }
 
-  return error instanceof Error ? error.message : String(error);
+  return message;
 }
