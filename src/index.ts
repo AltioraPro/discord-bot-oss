@@ -1,4 +1,4 @@
-import { loadEnv } from './config/env';
+import { loadEnv } from "./config/env";
 
 const env = loadEnv();
 

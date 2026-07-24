@@ -13,13 +13,18 @@
     "start": "bun src/index.ts",
     "build": "bun build src/index.ts --outdir dist --target bun",
     "typecheck": "tsc --noEmit",
-    "test": "bun test"
+    "lint": "ultracite check",
+    "format": "ultracite fix",
+    "test": "bun test",
+    "check": "bun run lint && bun run typecheck && bun run test"
   },
   "dependencies": {
     "zod": "4.4.3"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.5.3",
     "@types/bun": "latest",
-    "typescript": "7.0.2"
+    "typescript": "7.0.2",
+    "ultracite": "7.9.4"
   }
 }
