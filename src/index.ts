@@ -2,10 +2,26 @@ import type { Client } from "discord.js";
 import { createDiscordClient } from "./bot/client";
 import { describeStartupError } from "./bot/errors";
 import { registerEvents } from "./bot/events";
-import { loadEnv } from "./config/env";
+import { type Env, loadEnv } from "./config/env";
 import { configureLogger, logger } from "./lib/logger";
 
-const env = loadEnv();
+/**
+ * A misconfiguration is not a crash, so it should not read like one.
+ *
+ * Letting `loadEnv` throw uncaught makes Bun print the message buried in a
+ * stack trace through the bundle, which reads as a bug in the bot rather than
+ * as an instruction to the operator.
+ */
+function loadEnvOrExit(): Env {
+  try {
+    return loadEnv();
+  } catch (error) {
+    logger.error(error instanceof Error ? error.message : String(error));
+    process.exit(1);
+  }
+}
+
+const env = loadEnvOrExit();
 
 configureLogger({
   json: env.NODE_ENV === "production",
