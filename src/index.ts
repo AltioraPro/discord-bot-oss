@@ -3,6 +3,7 @@ import { createDiscordClient } from "./bot/client";
 import { describeStartupError } from "./bot/errors";
 import { registerEvents } from "./bot/events";
 import { type Env, loadEnv } from "./config/env";
+import { startDeepworkRuntime } from "./deepwork/runtime";
 import { configureLogger, logger } from "./lib/logger";
 
 /**
@@ -32,6 +33,8 @@ const client = createDiscordClient();
 
 registerEvents(client);
 
+const stopDeepworkRuntime = startDeepworkRuntime(client);
+
 let shuttingDown = false;
 
 async function shutdown(signal: string, target: Client): Promise<void> {
@@ -43,6 +46,7 @@ async function shutdown(signal: string, target: Client): Promise<void> {
   shuttingDown = true;
   logger.info("Shutting down", { signal });
 
+  stopDeepworkRuntime();
   await target.destroy();
 
   logger.info("Disconnected from Discord");
