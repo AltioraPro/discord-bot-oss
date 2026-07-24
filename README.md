@@ -30,12 +30,12 @@ yourself, or you use the official Altiora bot.
 
 ## Status
 
-Milestone 0. The quality rail, the configuration layer and the deployment
-artefact are in place. The Discord client, the deepwork module and role sync
-land in subsequent releases — see `CHANGELOG.md`.
+Milestone 1. The bot connects to Discord, logs its startup state and shuts down
+cleanly. Role sync and deepwork sessions land in subsequent releases — see
+`CHANGELOG.md`.
 
-Concretely: today the bot validates its configuration and starts. It does not
-yet connect to Discord.
+Concretely: today the bot comes online in your guild and does nothing else. It
+does not yet react to voice channels or synchronise roles.
 
 ## Requirements
 
@@ -67,9 +67,19 @@ Every variable is documented in [`.env.example`](.env.example). Required:
 the bot runs in degraded mode: deepwork sessions live in memory only and
 nothing is persisted.
 
+`LOG_LEVEL` (`debug` | `info` | `warn` | `error`, default `info`) sets the
+minimum level. `NODE_ENV=production` switches logging to one JSON object per
+line for log shipping; anything else prints human readable lines. Warnings and
+errors go to stderr, everything else to stdout.
+
 ## Discord application setup
 
 **Intents:** Guilds, Guild Members, Guild Voice States
+
+Only **Server Members Intent** is privileged and must be switched on manually:
+Developer Portal → your application → Bot → Privileged Gateway Intents. Guild
+Voice States is not privileged despite what it does. If Server Members is left
+off, the bot refuses to start with a message naming that exact checkbox.
 
 **Permissions:** Manage Roles, Send Messages, Embed Links, Move Members
 
