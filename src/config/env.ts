@@ -83,6 +83,24 @@ const deepworkEnv = z.object({
   ),
 });
 
+/**
+ * Rank and premium role ids. All optional: a deepwork-only deployment need
+ * not configure any of them. A sync request for a rank whose role is unset
+ * fails per request rather than at boot.
+ */
+const rolesEnv = z.object({
+  DISCORD_ROLE_BEGINNER: blankAsAbsent(snowflake.optional()),
+  DISCORD_ROLE_CHAMPION: blankAsAbsent(snowflake.optional()),
+  DISCORD_ROLE_EXPERT: blankAsAbsent(snowflake.optional()),
+  DISCORD_ROLE_GRANDMASTER: blankAsAbsent(snowflake.optional()),
+  DISCORD_ROLE_IMMORTAL: blankAsAbsent(snowflake.optional()),
+  DISCORD_ROLE_LEGEND: blankAsAbsent(snowflake.optional()),
+  DISCORD_ROLE_MASTER: blankAsAbsent(snowflake.optional()),
+  DISCORD_ROLE_NEW: blankAsAbsent(snowflake.optional()),
+  DISCORD_ROLE_PREMIUM: blankAsAbsent(snowflake.optional()),
+  DISCORD_ROLE_RISING: blankAsAbsent(snowflake.optional()),
+});
+
 /** Process behaviour. Both have defaults, so neither is required. */
 const runtimeEnv = z.object({
   LOG_LEVEL: blankAsAbsent(
@@ -101,6 +119,7 @@ export const envObject = discordEnv
   .extend(serverEnv.shape)
   .extend(backendEnv.shape)
   .extend(deepworkEnv.shape)
+  .extend(rolesEnv.shape)
   .extend(runtimeEnv.shape);
 
 export const envSchema = envObject.superRefine((value, ctx) => {
