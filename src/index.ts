@@ -5,6 +5,8 @@ import { registerEvents } from "./bot/events";
 import { type Env, loadEnv } from "./config/env";
 import { startDeepworkRuntime } from "./deepwork/runtime";
 import { configureLogger, logger } from "./lib/logger";
+import { startOrpcServer } from "./orpc/server";
+import { roleConfig } from "./roles/config";
 
 /**
  * A misconfiguration is not a crash, so it should not read like one.
@@ -35,6 +37,14 @@ registerEvents(client);
 
 const stopDeepworkRuntime = startDeepworkRuntime(client);
 
+const stopOrpcServer = startOrpcServer({
+  client,
+  config: roleConfig(env),
+  guildId: env.DISCORD_GUILD_ID,
+  port: env.BOT_PORT,
+  secret: env.WEBHOOK_SECRET,
+});
+
 let shuttingDown = false;
 
 async function shutdown(signal: string, target: Client): Promise<void> {
@@ -46,6 +56,7 @@ async function shutdown(signal: string, target: Client): Promise<void> {
   shuttingDown = true;
   logger.info("Shutting down", { signal });
 
+  stopOrpcServer();
   stopDeepworkRuntime();
   await target.destroy();
 
