@@ -30,12 +30,9 @@ yourself, or you use the official Altiora bot.
 
 ## Status
 
-Milestone 1. The bot connects to Discord, logs its startup state and shuts down
-cleanly. Role sync and deepwork sessions land in subsequent releases — see
-`CHANGELOG.md`.
-
-Concretely: today the bot comes online in your guild and does nothing else. It
-does not yet react to voice channels or synchronise roles.
+The bot connects to Discord, runs deepwork sessions, and exposes an
+authenticated webhook that syncs a member's rank and premium roles. Backend
+persistence and auto-sync on join land in a later release — see `CHANGELOG.md`.
 
 ## Requirements
 
@@ -98,6 +95,30 @@ To self-host with your own backend, implement three procedures:
 - `pomodoro.save({ userId, discordId, duration, workTime, status, endedAt })` returning `{ success }`
 
 The authoritative shapes will live in `src/contracts/` once that module lands.
+
+## Role sync
+
+The bot exposes a small JSON API on `BOT_PORT` (default 3001) so a backend can
+push rank changes. Every roles endpoint requires the `WEBHOOK_SECRET` as a
+bearer token; `health` does not.
+
+```
+GET  /rpc/health
+POST /rpc/roles/sync           { "discordId": "...", "rank": "CHAMPION", "isPro": true }
+POST /rpc/roles/syncMultiple   { "users": [ { "discordId": "...", "rank": "NEW" } ] }
+```
+
+`rank` is one of `NEW`, `BEGINNER`, `RISING`, `CHAMPION`, `EXPERT`, `LEGEND`,
+`MASTER`, `GRANDMASTER`, `IMMORTAL`. `isPro` is optional and authoritative:
+omitting it removes the premium role.
+
+Configure one role id per rank you use, plus premium, in `.env` (see
+`.env.example`). Ranks you leave unset are simply rejected by name if a sync
+asks for them. The bot only ever adds or removes roles you configure here —
+your other roles are never touched.
+
+The bot needs the **Manage Roles** permission, and its own role must sit above
+the roles it manages in the server's role list.
 
 ## Docker
 
