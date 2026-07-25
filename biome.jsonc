@@ -1,4 +1,8 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-  "extends": ["ultracite/biome/core"]
+  "extends": ["ultracite/biome/core"],
+  "javascript": {
+    // Bun is the runtime; its global is not in Biome's default set.
+    "globals": ["Bun"]
+  }
 }
