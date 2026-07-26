@@ -1,5 +1,21 @@
 import { z } from "zod";
 
+/**
+ * Treats a blank value as absent.
+ *
+ * A `.env` file copied from `.env.example` leaves optional keys present but
+ * empty, as in `APP_URL=`. Without this, an empty string reaches the validator
+ * and fails as a malformed URL, so a correctly filled configuration is
+ * rejected for variables the operator deliberately left unset.
+ */
+function blankAsAbsent<T extends z.ZodType>(schema: T) {
+  return z.preprocess(
+    (value) =>
+      typeof value === "string" && value.trim() === "" ? undefined : value,
+    schema
+  );
+}
+
 /** Discord snowflakes are 17 to 20 digit numeric strings. */
 const snowflake = z
   .string()
@@ -26,14 +42,18 @@ const snowflakeList = z
 /** Discord connection. All required. */
 const discordEnv = z.object({
   DEEPWORK_VOICE_CHANNEL_IDS: snowflakeList,
-  DISCORD_BOT_TOKEN: z.string().min(1, "is required"),
+  // Trimmed before validation: a stray space around a value in a .env file is
+  // invisible, and would otherwise be sent to Discord verbatim.
+  DISCORD_BOT_TOKEN: z.string().trim().min(1, "is required"),
   DISCORD_GUILD_ID: snowflake,
 });
 
 /** The inbound oRPC server this bot exposes. All required. */
 const serverEnv = z.object({
-  BOT_PORT: z.coerce.number().int().positive().max(65_535).default(3001),
-  WEBHOOK_SECRET: z.string().min(16, "must be at least 16 characters"),
+  BOT_PORT: blankAsAbsent(
+    z.coerce.number().int().positive().max(65_535).default(3001)
+  ),
+  WEBHOOK_SECRET: z.string().trim().min(16, "must be at least 16 characters"),
 });
 
 /**
@@ -41,9 +61,19 @@ const serverEnv = z.object({
  * mode, where deepwork sessions are kept in memory and nothing is persisted.
  */
 const backendEnv = z.object({
-  API_SECRET: z.string().min(1).optional(),
-  APP_URL: z.url("must be a valid URL").optional(),
-  OAUTH_REDIRECT_URL: z.url("must be a valid URL").optional(),
+  API_SECRET: blankAsAbsent(z.string().min(1).optional()),
+  APP_URL: blankAsAbsent(z.url("must be a valid URL").optional()),
+  OAUTH_REDIRECT_URL: blankAsAbsent(z.url("must be a valid URL").optional()),
+});
+
+/** Process behaviour. Both have defaults, so neither is required. */
+const runtimeEnv = z.object({
+  LOG_LEVEL: blankAsAbsent(
+    z.enum(["debug", "info", "warn", "error"]).default("info")
+  ),
+  NODE_ENV: blankAsAbsent(
+    z.enum(["development", "production", "test"]).default("development")
+  ),
 });
 
 /**
@@ -52,7 +82,8 @@ const backendEnv = z.object({
  */
 export const envObject = discordEnv
   .extend(serverEnv.shape)
-  .extend(backendEnv.shape);
+  .extend(backendEnv.shape)
+  .extend(runtimeEnv.shape);
 
 export const envSchema = envObject.superRefine((value, ctx) => {
   if (value.APP_URL && !value.API_SECRET) {

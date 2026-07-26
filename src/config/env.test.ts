@@ -64,6 +64,40 @@ describe("parseEnv", () => {
     expect(env.APP_URL).toBe("https://altiora.pro");
   });
 
+  test("treats blank optional values as absent", () => {
+    // This is the shape of a .env copied from .env.example with only the
+    // required fields filled in — the flow the README documents.
+    const env = parseEnv({
+      ...validSource(),
+      API_SECRET: "",
+      APP_URL: "",
+      OAUTH_REDIRECT_URL: "",
+    });
+
+    expect(env.APP_URL).toBeUndefined();
+    expect(env.API_SECRET).toBeUndefined();
+    expect(env.OAUTH_REDIRECT_URL).toBeUndefined();
+  });
+
+  test("falls back to defaults when a defaulted value is blank", () => {
+    const env = parseEnv({
+      ...validSource(),
+      BOT_PORT: "",
+      LOG_LEVEL: "",
+      NODE_ENV: "",
+    });
+
+    expect(env.BOT_PORT).toBe(3001);
+    expect(env.LOG_LEVEL).toBe("info");
+    expect(env.NODE_ENV).toBe("development");
+  });
+
+  test("still rejects a blank required value", () => {
+    expect(() =>
+      parseEnv({ ...validSource(), DISCORD_BOT_TOKEN: "  " })
+    ).toThrow(MENTIONS_BOT_TOKEN);
+  });
+
   test("rejects APP_URL without API_SECRET", () => {
     expect(() =>
       parseEnv({ ...validSource(), APP_URL: "https://altiora.pro" })
