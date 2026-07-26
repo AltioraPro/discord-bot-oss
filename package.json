@@ -1,6 +1,6 @@
 {
   "name": "discord-bot-oss",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "The open source Discord bot for Altiora - community edition with deepwork sessions and role sync.",
   "license": "MIT",
