@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { formatMinutes } from "./messages";
+import { formatMinutes, settledPrompt } from "./messages";
 
 describe("formatMinutes", () => {
   test("renders whole hours without a minute part", () => {
@@ -29,5 +29,29 @@ describe("formatMinutes", () => {
   test("renders a session that has barely begun", () => {
     expect(formatMinutes(0)).toBe("0m");
     expect(formatMinutes(0.2)).toBe("0m");
+  });
+});
+
+describe("settledPrompt", () => {
+  test("carries no components, so the buttons cannot be clicked twice", () => {
+    expect(
+      settledPrompt("Session cancelled", "Cancelling now.").components
+    ).toEqual([]);
+  });
+
+  test("replaces the question with the outcome", () => {
+    const [embed] = settledPrompt(
+      "Check-in confirmed",
+      "Noted, keep going."
+    ).embeds;
+
+    expect(embed.data.title).toBe("Check-in confirmed");
+    expect(embed.data.description).toBe("Noted, keep going.");
+  });
+
+  test("keeps the deepwork accent so a settled prompt still looks like ours", () => {
+    const [embed] = settledPrompt("Session ended", "Wrapping up now.").embeds;
+
+    expect(embed.data.color).toBe(0x58_65_f2);
   });
 });

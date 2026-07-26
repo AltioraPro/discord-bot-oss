@@ -84,6 +84,30 @@ export function checkInPrompt(elapsedMinutes: number): MessageCreateOptions {
   };
 }
 
+/**
+ * A prompt that has been answered. The outcome replaces the question and the
+ * button row is dropped, so the row cannot be clicked a second time — a member
+ * cannot pick a length and then cancel the same message, and a stale check-in
+ * stops counting as an answer.
+ */
+export function settledPrompt(
+  title: string,
+  description: string
+): {
+  components: [];
+  embeds: [EmbedBuilder];
+} {
+  return {
+    components: [],
+    embeds: [
+      new EmbedBuilder()
+        .setColor(ACCENT)
+        .setTitle(title)
+        .setDescription(description),
+    ],
+  };
+}
+
 export type SessionOutcome = "cancelled" | "completed" | "ended" | "timeout";
 
 const OUTCOME_TITLE: Record<SessionOutcome, string> = {

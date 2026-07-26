@@ -1,6 +1,6 @@
-import { Events, MessageFlags } from "discord.js";
+import { Events } from "discord.js";
 import { parseDeepworkCustomId } from "../../deepwork/durations";
-import { formatMinutes } from "../../deepwork/messages";
+import { formatMinutes, settledPrompt } from "../../deepwork/messages";
 import { finishSession } from "../../deepwork/runtime";
 import { sessions } from "../../deepwork/store";
 import { logger } from "../../lib/logger";
@@ -23,10 +23,10 @@ export const interactionHandler = defineEvent({
     const session = sessions.get(userId);
 
     if (!session) {
-      await interaction.reply({
-        content: "That session is no longer running.",
-        flags: MessageFlags.Ephemeral,
-      });
+      // A prompt left over from a session that already finished.
+      await interaction.update(
+        settledPrompt("Session ended", "That session is no longer running.")
+      );
       return;
     }
 
@@ -37,37 +37,38 @@ export const interactionHandler = defineEvent({
           plannedMinutes: click.minutes,
           userId,
         });
-        await interaction.reply({
-          content: `Session started for ${formatMinutes(click.minutes)}. Good luck.`,
-          flags: MessageFlags.Ephemeral,
-        });
+        await interaction.update(
+          settledPrompt(
+            "Deepwork session started",
+            `Running for ${formatMinutes(click.minutes)}. Good luck.`
+          )
+        );
         break;
       }
 
       case "still-working": {
         sessions.confirmWorking(userId);
         logger.debug("Check-in confirmed", { userId });
-        await interaction.reply({
-          content: "Noted, keep going.",
-          flags: MessageFlags.Ephemeral,
-        });
+        await interaction.update(
+          settledPrompt("Check-in confirmed", "Noted, keep going.")
+        );
         break;
       }
 
+      // The closing summary that finishSession sends carries the outcome, so
+      // these two only have to settle the prompt they were clicked on.
       case "cancel": {
-        await interaction.reply({
-          content: "Session cancelled.",
-          flags: MessageFlags.Ephemeral,
-        });
+        await interaction.update(
+          settledPrompt("Session cancelled", "Cancelling now.")
+        );
         await finishSession(interaction.client, userId, "cancelled");
         break;
       }
 
       default: {
-        await interaction.reply({
-          content: "Session ended.",
-          flags: MessageFlags.Ephemeral,
-        });
+        await interaction.update(
+          settledPrompt("Session ending", "Wrapping up now.")
+        );
         await finishSession(interaction.client, userId, "ended");
       }
     }
