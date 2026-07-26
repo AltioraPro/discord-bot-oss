@@ -117,6 +117,12 @@ Configure one role id per rank you use, plus premium, in `.env` (see
 asks for them. The bot only ever adds or removes roles you configure here —
 your other roles are never touched.
 
+A sync that actually moves a role sends the member a direct message naming the
+rank they now hold and whether premium is active. Syncs that change nothing
+stay silent, so a backend re-pushing the same state does not turn into spam. A
+member who has direct messages closed simply does not get the notice; the roles
+are applied either way.
+
 The bot needs the **Manage Roles** permission, and its own role must sit above
 the roles it manages in the server's role list.
 
