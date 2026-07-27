@@ -1,10 +1,16 @@
 import type { Client } from "discord.js";
 import { logger } from "../../lib/logger";
+import { interactionHandler } from "./interactions";
 import { readyHandler } from "./ready";
 import type { AnyEventHandler } from "./types";
+import { voiceStateHandler } from "./voice-state";
 
 /** Every handler the bot binds. Later milestones append to this array. */
-const handlers: AnyEventHandler[] = [readyHandler];
+const handlers: AnyEventHandler[] = [
+  interactionHandler,
+  readyHandler,
+  voiceStateHandler,
+];
 
 export function registerEvents(client: Client): void {
   for (const handler of handlers) {
