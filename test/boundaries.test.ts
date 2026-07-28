@@ -43,9 +43,15 @@ describe("architectural boundaries", () => {
     expect(filesMatching(PROCESS_ENV, ["config/env.ts"])).toEqual([]);
   });
 
-  test("lib and config never import discord.js", () => {
+  test("pure modules never import discord.js", () => {
     const offenders = filesMatching(DISCORD_IMPORT, []).filter(
-      (file) => file.startsWith("lib/") || file.startsWith("config/")
+      (file) =>
+        file.startsWith("lib/") ||
+        file.startsWith("config/") ||
+        file.startsWith("contracts/") ||
+        file === "roles/config.ts" ||
+        file === "roles/diff.ts" ||
+        file === "orpc/middleware.ts"
     );
 
     expect(offenders).toEqual([]);

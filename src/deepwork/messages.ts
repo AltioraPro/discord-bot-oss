@@ -5,6 +5,7 @@ import {
   EmbedBuilder,
   type MessageCreateOptions,
 } from "discord.js";
+import { ACCENT } from "../lib/branding";
 import {
   CUSTOM_IDS,
   DURATION_CHOICES_MINUTES,
@@ -14,7 +15,6 @@ import type { EndedSession } from "./store";
 
 const MS_PER_MINUTE = 60_000;
 const MINUTES_PER_HOUR = 60;
-const ACCENT = 0x58_65_f2;
 
 /** Renders a length as "2h", "45m" or "1h 30m". */
 export function formatMinutes(minutes: number): string {

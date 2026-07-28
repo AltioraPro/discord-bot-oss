@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { ACCENT } from "../lib/branding";
 import { formatMinutes, settledPrompt } from "./messages";
 
 describe("formatMinutes", () => {
@@ -52,6 +53,6 @@ describe("settledPrompt", () => {
   test("keeps the deepwork accent so a settled prompt still looks like ours", () => {
     const [embed] = settledPrompt("Session ended", "Wrapping up now.").embeds;
 
-    expect(embed.data.color).toBe(0x58_65_f2);
+    expect(embed.data.color).toBe(ACCENT);
   });
 });
